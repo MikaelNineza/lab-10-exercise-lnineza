@@ -27,17 +27,34 @@ struct EscapeTime {
 
 // Escape time of iterating z^2 + c
 EscapeTime escapeTimeSmooth(vec2 z) {
-    // TODO
+    EscapeTime eTime;
+    vec2 zn = z;
+    for (int n = 1; n <= MAX_ITERS; ++n) {
+        if (length(zn) > 4) {
+            eTime.iters =  n + 1 - ((log(log(length(zn)))) / LOG_2);
+            eTime.isInf = false;
+            return eTime;
+        }
+
+        zn = vec2(zn.x * zn.x - (zn.y * zn.y) + c.x, 2.0 * zn.x * zn.y + c.y);
+    }
+
+    eTime.isInf = true;
+    return eTime;
+
 }
 
 
 vec2 windowToWorld(vec2 windowCoords) {
     // TODO
+    vec2 worldCoords = camCenterWorld + (windowCoords - windowSizePixels * 0.5) * camWorldUnitsPerPixel;
+    return worldCoords;
 }
 
 // For reprojection
 vec2 worldToOldWindow(vec2 worldCoords) {
     // TODO
+    return worldCoords;
 }
 
 // For SSAA
@@ -46,10 +63,18 @@ vec2 worldToOldWindow(vec2 worldCoords) {
 // which is in the dy'th row and dx'th column (both 0-indexed).
 vec2 delta(vec2 dxy) {
     // TODO
+    return dxy;
 }
 
 
 void main() {
     // TODO
     // gl_FragColor = ... some vec4 rgba colour
+    vec2 point = windowToWorld(gl_FragCoord.xy);
+    EscapeTime esTime = escapeTimeSmooth(point);
+    if (esTime.isInf) {
+        gl_FragColor = vec4(0, 0, 0, 1);
+    } else {
+        gl_FragColor = colorTime(esTime.iters);
+    }
 }
