@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
 
-constexpr int TRUE_MAX_ITERS = 16384;
+constexpr int TRUE_MAX_ITERS = 8192;
 constexpr int INIT_ITERS = 64;
 
 int main() {

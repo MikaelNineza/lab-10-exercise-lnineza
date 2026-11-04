@@ -46,7 +46,6 @@ EscapeTime escapeTimeSmooth(vec2 z) {
 
 
 vec2 windowToWorld(vec2 windowCoords) {
-    // TODO
     vec2 worldCoords = camCenterWorld + (windowCoords - windowSizePixels * 0.5) * camWorldUnitsPerPixel;
     return worldCoords;
 }
@@ -62,19 +61,26 @@ vec2 worldToOldWindow(vec2 worldCoords) {
 // partitions along each dimension. delta((dx, dy)) returns the center of the sub-square
 // which is in the dy'th row and dx'th column (both 0-indexed).
 vec2 delta(vec2 dxy) {
-    // TODO
-    return dxy;
+    return vec2((dxy.x + 0.5) / AA, (dxy.y + 0.5) / AA);
 }
 
 
 void main() {
     // TODO
-    // gl_FragColor = ... some vec4 rgba colour
-    vec2 point = windowToWorld(gl_FragCoord.xy);
-    EscapeTime esTime = escapeTimeSmooth(point);
-    if (esTime.isInf) {
-        gl_FragColor = vec4(0, 0, 0, 1);
-    } else {
-        gl_FragColor = colorTime(esTime.iters);
+    vec4 sum = vec4(0, 0, 0, 0);
+    vec2 leftBottom = floor(gl_FragCoord.xy);
+    for (int y = 0; y < AA; ++y) {
+        for (int x = 0; x < AA; ++x) {
+            vec2 sample = leftBottom + delta(vec2(x, y));
+            vec2 point = windowToWorld(sample);
+            EscapeTime esTime = escapeTimeSmooth(point);
+            if (esTime.isInf) {
+                sum += vec4(0, 0, 0, 1);
+            } else {
+                sum += colorTime(esTime.iters);
+            }
+        }
     }
+    
+    gl_FragColor = sum / TOTAL_SAMPLES;
 }
